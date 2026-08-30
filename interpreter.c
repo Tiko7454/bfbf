@@ -5,7 +5,7 @@
 #define PRE_BF_ERROR 1
 #define BF_ERROR 2
 
-#define MEM_SIZE 1024
+#define MEM_SIZE 65536
 #define CHUNK 256
 #define MAX_INSTUCTION_COUNT 1000000
 
@@ -16,17 +16,21 @@
         ran++;                                    \
     } while (0)
 
-void print_memory(const char* memory) {
-    for (const char* m = memory; m != memory + MEM_SIZE; m++) {
+void print_memory(const unsigned char* memory, size_t from, size_t upto) {
+    for (const unsigned char* m = memory - from; m != memory + upto; m++) {
         int content = *m;
-        fprintf(stderr, "[%3d]", content);
+        if (m == memory) {
+            fprintf(stderr, "{%3d}", content);
+        } else {
+            fprintf(stderr, "[%3d]", content);
+        }
     }
     fputs("\n", stderr);
 }
 
-const char* create_jump_table(char* instructions) {
+const size_t *create_jump_table(char* instructions) {
     run_once;
-    static char jump_table[MAX_INSTUCTION_COUNT] = {0};
+    static size_t jump_table[MAX_INSTUCTION_COUNT] = {0};
     int stack[MAX_INSTUCTION_COUNT] = {0};
     size_t top = 0;
     for (int i = 0; i < MAX_INSTUCTION_COUNT; i++) {
@@ -67,16 +71,21 @@ int main(int argc, char** argv) {
             ret = fread(instructions + i * CHUNK, 1, CHUNK, file);
         }
     }
+    fclose(file);
 
-    const char* jump_table = create_jump_table(instructions);
+    const size_t* jump_table = create_jump_table(instructions);
 
-    char memory[MEM_SIZE] = {0};
+    unsigned char memory[MEM_SIZE] = {0};
     size_t head = 0;
     size_t ip = 0;
+    int do_debug = instructions[ip] == '`';
     while (1) {
         char ch = instructions[ip];
         if (ch == 0) {
             break;
+        }
+        if (do_debug) {
+            fprintf(stderr, "now doing %c on %lu\n", instructions[ip], ip);
         }
         switch (ch) {
             case '+':
@@ -112,7 +121,13 @@ int main(int argc, char** argv) {
                 putchar(memory[head]);
                 break;
             case '?':
-                print_memory(memory);
+                fprintf(stderr, "%lu\n", head);
+                break;
+            case '!':
+                print_memory(memory+head, 0, 16);
+                break;
+            case '\'':
+                fprintf(stderr, "%d\n", (int)memory[head]);
                 break;
             default:
                 break;
