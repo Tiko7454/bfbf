@@ -20,7 +20,7 @@ void print_memory(const unsigned char* memory, size_t from, size_t upto) {
     for (const unsigned char* m = memory - from; m != memory + upto; m++) {
         int content = *m;
         if (m == memory) {
-            fprintf(stderr, "{%3d}", content);
+            fprintf(stderr, "\033[32m[%3d]\033[0m", content);
         } else {
             fprintf(stderr, "[%3d]", content);
         }
@@ -125,6 +125,9 @@ int main(int argc, char** argv) {
                 break;
             case '!':
                 print_memory(memory+head, 0, 16);
+                break;
+            case '@':
+                print_memory(memory+head, 7, 8);
                 break;
             case '\'':
                 fprintf(stderr, "%d\n", (int)memory[head]);
