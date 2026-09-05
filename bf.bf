@@ -210,14 +210,14 @@ mov esi_ 0
           >>+<<+[>>-<<[->+<]]>>[-<<<+>+>>]<[-<+>]< increment
           
           [->+
-          >>>>>         stack start.next
+          >>>>>         stack start next
           [>]           stack{size}
           >+<
           <[<]          go back to stack start
           <<<<<]
           <
           [->+
-          >>>>>>        stack start.next
+          >>>>>>        stack start next
           [>]           stack{size}
           +
           [<]          go back to stack start
